@@ -8,6 +8,7 @@ plugins {
     id("com.gradleup.shadow") version "8.3.3"
 }
 
+// TODO: Replace project properties with your own properties.
 group = "cc.cerial.cerialplugintemplate"
 version = "1.0-SNAPSHOT"
 description = "This is the plugin description."
@@ -15,9 +16,10 @@ description = "This is the plugin description."
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.codemc.org/repository/maven-public/") // CommandAPI
 }
 
-// IMPORTANT: Set this to the Minecraft version you will develop against.
+// TODO: Set the version to the version you want to develop against.
 val mcVer = "1.21.4"
 
 // What to use on dependencies?
@@ -25,9 +27,18 @@ val mcVer = "1.21.4"
 //    (if required).
 //  - If the dependency is a RUNTIME LIBRARY, use paperLibrary(). The library will load
 //    on the startup of the server, and won't be included in the plugin.
-//  - If the dependency is a PLUGIN (or Paper/Purpur API), use compileOnly().l
+//  - If the dependency is a PLUGIN (or Paper/Purpur API), use compileOnly().
 dependencies {
+    // === CORE DEPENDENCIES ===
+    // PaperMC API
     compileOnly("io.papermc.paper:paper-api:$mcVer-R0.1-SNAPSHOT")
+
+    // If the plugin is Mojang Mapped (default), then use the following dependency, otherwise
+    // remove the "-mojang-mapped" suffix at the end.
+    implementation("dev.jorel:commandapi-bukkit-shade-mojang-mapped:9.7.0")
+
+    // Required for commands (does searching through packages).
+    paperLibrary("io.github.classgraph:classgraph:4.8.179")
 }
 
 java {
@@ -39,17 +50,18 @@ java {
 //       There is no need to change these properties yourself in the "paper" section.
 // An example for values is at https://github.com/eldoriarpg/plugin-yml/wiki/Paper#kotlin.
 paper {
-    // Keep this as true!
+    // If you keep the command libraries, keep this section intact.
     generateLibrariesJson = true
+    loader = "cc.cerial.cerialplugintemplate.CerialLibraryLoader"
 
     // The basic plugin information, such as the JavaPlugin extending class, API version, authors and website.
     // As noted above, name, description and version are Gradle properties. These should be changed
     // from Gradle.
+    // TODO: Replace the information below according to your needs.
     main =       "cc.cerial.cerialplugintemplate.CerialPluginTemplate"
-    loader =     "cc.cerial.cerialplugintemplate.CerialLibraryLoader"
     apiVersion = mcVer
     authors =    listOf("oCerial")
-    website =    "[Insert GitHub page here]"
+    website =    "https://github.com/CerialPvP/CerialPluginTemplate"
 
     // Below this, register any permissions and plugin dependencies.
 }
@@ -62,7 +74,8 @@ tasks.withType<ShadowJar> {
     archiveClassifier.set("")
     // Only relocate when not running test server.
     if (!gradle.startParameter.taskNames.contains("runServer")) {
-//        relocate("some.random.class", "some.other.class")
+        // TODO: Replace the relocation with your own package.
+        relocate("dev.jorel.commandapi", "cc.cerial.cerialplugintemplate.relocations.commandapi")
     }
 }
 
