@@ -1,1 +1,1 @@
-rootProject.name = "CerialPluginTemplate"
+rootProject.name = "ParticleLib"
